@@ -10,6 +10,7 @@ A smart CLI tool that generates intelligent branch names and commit messages usi
 - 🎯 **Context Aware**: Uses project-specific context from `.md` files
 - ⚙️ **Configurable**: Customizable providers, formats, and conventions
 - 🔄 **Pattern Recognition**: Learns from existing repository naming patterns
+- 🛟 **Offline Fallback**: Provides basic suggestions when AI providers are unavailable
 
 ## Installation
 
