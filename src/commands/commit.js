@@ -4,6 +4,7 @@ const inquirer = require('inquirer');
 const GitAnalyzer = require('../utils/git');
 const ConfigManager = require('../utils/config');
 const { getAIProvider } = require('../providers');
+const { generateCommitMessageFallback } = require('../utils/fallback');
 
 async function generateCommit(options) {
   const spinner = ora('Analyzing changes...').start();
@@ -72,11 +73,16 @@ async function generateCommitMessage(stagedChanges, detailedDiff, recentCommits,
     const context = await config.readContextFile(contextFile);
     
     spinner.text = 'Generating commit message...';
-    const provider = await getAIProvider(options.provider || 'claude', config);
-    
-    const prompt = buildCommitPrompt(stagedChanges, detailedDiff, recentCommits, context);
-    const suggestions = await provider.generateCommitMessage(prompt);
-    
+    let suggestions;
+    try {
+      const provider = await getAIProvider(options.provider || 'claude', config);
+      const prompt = buildCommitPrompt(stagedChanges, detailedDiff, recentCommits, context);
+      suggestions = await provider.generateCommitMessage(prompt);
+    } catch (err) {
+      console.warn(chalk.yellow('⚠️  AI provider unavailable, using basic commit message.'));
+      suggestions = generateCommitMessageFallback(stagedChanges);
+    }
+
     spinner.stop();
     
     console.log(chalk.green('📝 Commit message suggestions:'));

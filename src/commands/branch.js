@@ -3,6 +3,7 @@ const ora = require("ora");
 const GitAnalyzer = require("../utils/git");
 const ConfigManager = require("../utils/config");
 const { getAIProvider } = require("../providers");
+const { generateBranchNameFallback } = require("../utils/fallback");
 
 async function generateBranch(options) {
   const spinner = ora("Analyzing repository...").start();
@@ -20,10 +21,15 @@ async function generateBranch(options) {
     const context = await config.readContextFile(contextFile);
 
     spinner.text = "Generating branch name...";
-    const provider = await getAIProvider(options.provider || "claude", config);
-
-    const prompt = buildBranchPrompt(repoInfo, context);
-    const suggestions = await provider.generateBranchName(prompt);
+    let suggestions;
+    try {
+      const provider = await getAIProvider(options.provider || "claude", config);
+      const prompt = buildBranchPrompt(repoInfo, context);
+      suggestions = await provider.generateBranchName(prompt);
+    } catch (err) {
+      console.warn(chalk.yellow("⚠️  AI provider unavailable, using basic branch name."));
+      suggestions = generateBranchNameFallback(repoInfo);
+    }
 
     spinner.stop();
 
