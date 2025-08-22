@@ -13,6 +13,20 @@ A smart CLI tool that generates intelligent branch names and commit messages usi
 
 ## Installation
 
+### Install globally with npm
+
+```bash
+npm install -g committer
+```
+
+### Run with npx
+
+```bash
+npx committer <command>
+```
+
+### From source
+
 ```bash
 # Clone the repository
 git clone <repository-url>
